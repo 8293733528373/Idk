@@ -1299,7 +1299,7 @@ end)
 local tabteleport = window:AddTab("Teleport")
 
 local titleLabel = tabteleport:AddLabel("Settings")
-titleLabel.TextSize = 18
+titleLabel.TextSize = 20
 titleLabel.Font = Enum.Font.Merriweather 
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
@@ -1404,7 +1404,7 @@ titleLabel.Font = Enum.Font.Merriweather
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 local titleLabel = tabteleport:AddLabel("Teleport")
-titleLabel.TextSize = 18
+titleLabel.TextSize = 20
 titleLabel.Font = Enum.Font.Merriweather 
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
@@ -1524,7 +1524,10 @@ titleLabel.TextSize = 18
 titleLabel.Font = Enum.Font.Merriweather 
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-tabteleport:AddLabel("Optimization").TextSize = 25
+local titleLabel = tabteleport:AddLabel("Optimization")
+titleLabel.TextSize = 20
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 tabteleport:AddButton("Low Graphics", function()
     pcall(function()
