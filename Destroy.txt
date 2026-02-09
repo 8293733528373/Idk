@@ -63,7 +63,7 @@ local displayName = player.DisplayName or player.Name
 
 local window = library:AddWindow("Kill Anyone | - Welcome " .. displayName, {
     main_color = Color3.fromRGB(54, 6, 6),
-    min_size = Vector2.new(500, 675),
+    min_size = Vector2.new(500, 800),
     can_resize = false,
 })
 
