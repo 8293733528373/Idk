@@ -405,6 +405,11 @@ Killer:AddSwitch("View Player", function(bool)
     end)
 end)
 
+local titleLabel = Killer:AddLabel("------------------------------------------------------")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
 local button = Killer:AddButton("Remove Punch Anim", function()
     local blockedAnimations = {
         ["rbxassetid://3638729053"] = true,
@@ -846,6 +851,11 @@ end)
 disableProteinEgg()
 coroutine.wrap(monitorProteinEgg)()
 
+local titleLabel = Killer:AddLabel("------------------------------------------------------")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
 local titleLabel = Killer:AddLabel("Sizes")
 titleLabel.TextSize = 18
 titleLabel.Font = Enum.Font.Merriweather 
@@ -868,4 +878,84 @@ Killer:AddButton("Size 30", function()
     pcall(function()
         game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 30)
     end)
+end)
+
+local titleLabel = Killer:AddLabel("------------------------------------------------------")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local titleLabel = Killer:AddLabel("Whitelisted & Killing")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local whitelistLabel = Killer:AddLabel("Whitelist: None")
+whitelistLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+
+local function updateWhitelistLabel()
+    local names = {}
+
+    for name, _ in pairs(playerWhitelist) do
+        table.insert(names, name)
+    end
+
+    if #names == 0 then
+        whitelistLabel.Text = "Whitelist: None"
+    else
+        local text = ""
+        for i, name in ipairs(names) do
+            if i > 5 then
+                text = text .. "..."
+                break
+            end
+            if i > 1 then text = text .. ", " end
+            text = text .. name
+        end
+        whitelistLabel.Text = "Whitelist: " .. text
+    end
+end
+
+Killer:AddButton("Clear Whitelist", function()
+    playerWhitelist = {}
+    updateWhitelistLabel()
+end)
+
+task.spawn(function()
+    while true do
+        updateWhitelistLabel()
+        task.wait(0.3)
+    end
+end)
+
+local targetLabel = Killer:AddLabel("Targets: None")
+targetLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+
+local function updateTargetLabel()
+    if #targetPlayerNames == 0 then
+        targetLabel.Text = "Targets: None"
+    else
+        local text = ""
+        for i, name in ipairs(targetPlayerNames) do
+            if i > 5 then
+                text = text .. "..."
+                break
+            end
+            if i > 1 then text = text .. ", " end
+            text = text .. name
+        end
+        targetLabel.Text = "Targets: " .. text
+    end
+end
+
+Killer:AddButton("Clear Targets", function()
+    targetPlayerNames = {}
+    updateTargetLabel()
+end)
+
+task.spawn(function()
+    while true do
+        updateTargetLabel()
+        task.wait(0.3)
+    end
 end)
