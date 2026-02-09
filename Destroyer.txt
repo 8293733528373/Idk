@@ -1298,7 +1298,121 @@ end)
 
 local tabteleport = window:AddTab("Teleport")
 
-tabteleport:AddLabel("Teleport").TextSize = 26
+local titleLabel = tabteleport:AddLabel("Settings")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+tabteleport:AddSwitch("Anti-Knockback", function(Value)
+    if Value then
+        local playerName = game.Players.LocalPlayer.Name
+        local rootPart = game.Workspace:FindFirstChild(playerName):FindFirstChild("HumanoidRootPart")
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(100000, 0, 100000)
+        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.P = 1250
+        bodyVelocity.Parent = rootPart
+    else
+        local playerName = game.Players.LocalPlayer.Name
+        local rootPart = game.Workspace:FindFirstChild(playerName):FindFirstChild("HumanoidRootPart")
+        local existingVelocity = rootPart:FindFirstChild("BodyVelocity")
+        if existingVelocity and existingVelocity.MaxForce == Vector3.new(100000, 0, 100000) then
+            existingVelocity:Destroy()
+        end
+    end
+end)
+
+tabteleport:AddButton("Remove Portals", function()
+    for _, portal in pairs(game:GetDescendants()) do
+        if portal.Name == "RobloxForwardPortals" then
+            portal:Destroy()
+        end
+    end
+    
+    if _G.AdRemovalConnection then
+        _G.AdRemovalConnection:Disconnect()
+    end
+    
+    _G.AdRemovalConnection = game.DescendantAdded:Connect(function(descendant)
+        if descendant.Name == "RobloxForwardPortals" then
+            descendant:Destroy()
+        end
+    end)
+    
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Anuncios Eliminados",
+        Text = "Los anuncios de Roblox han sido eliminados",
+        Duration = 0
+    })
+end)
+
+local timeDropdown = tabteleport:AddDropdown("Change Time", function(selection)
+    local lighting = game:GetService("Lighting")
+    lighting.Brightness = 2
+    lighting.FogEnd = 100000
+    lighting.Ambient = Color3.fromRGB(127,127,127)
+
+    if selection == "Morning" then
+        lighting.ClockTime = 6
+        lighting.Brightness = 2
+        lighting.Ambient = Color3.fromRGB(200, 200, 255)
+    elseif selection == "Noon" then
+        lighting.ClockTime = 12
+        lighting.Brightness = 3
+        lighting.Ambient = Color3.fromRGB(255, 255, 255)
+    elseif selection == "Afternoon" then
+        lighting.ClockTime = 16
+        lighting.Brightness = 2.5
+        lighting.Ambient = Color3.fromRGB(255, 220, 180)
+    elseif selection == "Sunset" then
+        lighting.ClockTime = 18
+        lighting.Brightness = 2
+        lighting.Ambient = Color3.fromRGB(255, 150, 100)
+        lighting.FogEnd = 500
+    elseif selection == "Night" then
+        lighting.ClockTime = 20
+        lighting.Brightness = 1.5
+        lighting.Ambient = Color3.fromRGB(100, 100, 150)
+        lighting.FogEnd = 800
+    elseif selection == "Midnight" then
+        lighting.ClockTime = 0
+        lighting.Brightness = 1
+        lighting.Ambient = Color3.fromRGB(50, 50, 100)
+        lighting.FogEnd = 400
+    elseif selection == "Dawn" then
+        lighting.ClockTime = 4
+        lighting.Brightness = 1.8
+        lighting.Ambient = Color3.fromRGB(180, 180, 220)
+    elseif selection == "Early Morning" then
+        lighting.ClockTime = 2
+        lighting.Brightness = 1.2
+        lighting.Ambient = Color3.fromRGB(100, 120, 180)
+    elseif selection == "Day" then
+        lighting.ClockTime = 12
+        lighting.Brightness = 3
+        lighting.Ambient = Color3.fromRGB(255, 255, 255)
+    end
+end)
+
+timeDropdown:Add("Morning")
+timeDropdown:Add("Noon")
+timeDropdown:Add("Afternoon")
+timeDropdown:Add("Sunset")
+timeDropdown:Add("Night")
+timeDropdown:Add("Midnight")
+timeDropdown:Add("Dawn")
+timeDropdown:Add("Early Morning")
+timeDropdown:Add("Day")
+
+local titleLabel = tabteleport:AddLabel("_______________________________________")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local titleLabel = tabteleport:AddLabel("Teleport")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 tabteleport:AddButton("Spawn", function()
     local player = game.Players.LocalPlayer
@@ -1384,7 +1498,10 @@ tabteleport:AddButton("Brawl Regular", function()
     humanoidRootPart.CFrame = CFrame.new(-1849, 20, -6335)
 end)
 
-tabteleport:AddLabel("Island To Fight V2").TextSize = 25
+local titleLabel = tabteleport:AddLabel("Island To Fight V2")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 tabteleport:AddButton("Safe Island", function()
     local player = game.Players.LocalPlayer
@@ -1546,114 +1663,3 @@ tabteleport:AddButton("Restore Graphics", function()
         end
     end
 end)
-
-local titleLabel = tabteleport:AddLabel("_______________________________________")
-titleLabel.TextSize = 18
-titleLabel.Font = Enum.Font.Merriweather 
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-local titleLabel = tabteleport:AddLabel("Settings")
-titleLabel.TextSize = 18
-titleLabel.Font = Enum.Font.Merriweather 
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-tabteleport:AddSwitch("Anti-Knockback", function(Value)
-    if Value then
-        local playerName = game.Players.LocalPlayer.Name
-        local rootPart = game.Workspace:FindFirstChild(playerName):FindFirstChild("HumanoidRootPart")
-        local bodyVelocity = Instance.new("BodyVelocity")
-        bodyVelocity.MaxForce = Vector3.new(100000, 0, 100000)
-        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
-        bodyVelocity.P = 1250
-        bodyVelocity.Parent = rootPart
-    else
-        local playerName = game.Players.LocalPlayer.Name
-        local rootPart = game.Workspace:FindFirstChild(playerName):FindFirstChild("HumanoidRootPart")
-        local existingVelocity = rootPart:FindFirstChild("BodyVelocity")
-        if existingVelocity and existingVelocity.MaxForce == Vector3.new(100000, 0, 100000) then
-            existingVelocity:Destroy()
-        end
-    end
-end)
-
-tabteleport:AddButton("Remove Portals", function()
-    for _, portal in pairs(game:GetDescendants()) do
-        if portal.Name == "RobloxForwardPortals" then
-            portal:Destroy()
-        end
-    end
-    
-    if _G.AdRemovalConnection then
-        _G.AdRemovalConnection:Disconnect()
-    end
-    
-    _G.AdRemovalConnection = game.DescendantAdded:Connect(function(descendant)
-        if descendant.Name == "RobloxForwardPortals" then
-            descendant:Destroy()
-        end
-    end)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Anuncios Eliminados",
-        Text = "Los anuncios de Roblox han sido eliminados",
-        Duration = 0
-    })
-end)
-
-local timeDropdown = tabteleport:AddDropdown("Change Time", function(selection)
-    local lighting = game:GetService("Lighting")
-    lighting.Brightness = 2
-    lighting.FogEnd = 100000
-    lighting.Ambient = Color3.fromRGB(127,127,127)
-
-    if selection == "Morning" then
-        lighting.ClockTime = 6
-        lighting.Brightness = 2
-        lighting.Ambient = Color3.fromRGB(200, 200, 255)
-    elseif selection == "Noon" then
-        lighting.ClockTime = 12
-        lighting.Brightness = 3
-        lighting.Ambient = Color3.fromRGB(255, 255, 255)
-    elseif selection == "Afternoon" then
-        lighting.ClockTime = 16
-        lighting.Brightness = 2.5
-        lighting.Ambient = Color3.fromRGB(255, 220, 180)
-    elseif selection == "Sunset" then
-        lighting.ClockTime = 18
-        lighting.Brightness = 2
-        lighting.Ambient = Color3.fromRGB(255, 150, 100)
-        lighting.FogEnd = 500
-    elseif selection == "Night" then
-        lighting.ClockTime = 20
-        lighting.Brightness = 1.5
-        lighting.Ambient = Color3.fromRGB(100, 100, 150)
-        lighting.FogEnd = 800
-    elseif selection == "Midnight" then
-        lighting.ClockTime = 0
-        lighting.Brightness = 1
-        lighting.Ambient = Color3.fromRGB(50, 50, 100)
-        lighting.FogEnd = 400
-    elseif selection == "Dawn" then
-        lighting.ClockTime = 4
-        lighting.Brightness = 1.8
-        lighting.Ambient = Color3.fromRGB(180, 180, 220)
-    elseif selection == "Early Morning" then
-        lighting.ClockTime = 2
-        lighting.Brightness = 1.2
-        lighting.Ambient = Color3.fromRGB(100, 120, 180)
-    elseif selection == "Day" then
-        lighting.ClockTime = 12
-        lighting.Brightness = 3
-        lighting.Ambient = Color3.fromRGB(255, 255, 255)
-    end
-end)
-
-timeDropdown:Add("Morning")
-timeDropdown:Add("Noon")
-timeDropdown:Add("Afternoon")
-timeDropdown:Add("Sunset")
-timeDropdown:Add("Night")
-timeDropdown:Add("Midnight")
-timeDropdown:Add("Dawn")
-timeDropdown:Add("Early Morning")
-timeDropdown:Add("Day")
