@@ -1338,12 +1338,6 @@ tabteleport:AddButton("Remove Portals", function()
             descendant:Destroy()
         end
     end)
-
-game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "No Ads",
-        Text = "",
-        Duration = 0
-    })
 end)
 
 local timeDropdown = tabteleport:AddDropdown("Change Time", function(selection)
