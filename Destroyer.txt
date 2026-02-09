@@ -1338,13 +1338,6 @@ tabteleport:AddButton("Remove Portals", function()
             descendant:Destroy()
         end
     end)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Anuncios Eliminados",
-        Text = "Los anuncios de Roblox han sido eliminados",
-        Duration = 0
-    })
-end)
 
 local timeDropdown = tabteleport:AddDropdown("Change Time", function(selection)
     local lighting = game:GetService("Lighting")
