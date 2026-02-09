@@ -63,7 +63,7 @@ local displayName = player.DisplayName or player.Name
 
 local window = library:AddWindow("Kill Anyone | - Welcome " .. displayName, {
     main_color = Color3.fromRGB(54, 6, 6),
-    min_size = Vector2.new(500, 800),
+    min_size = Vector2.new(500, 900),
     can_resize = false,
 })
 
@@ -704,7 +704,7 @@ Killer:AddSwitch("View Player", function(bool)
     end)
 end)
 
-local titleLabel = Killer:AddLabel("------------------------------------------------------")
+local titleLabel = Killer:AddLabel("---------------------------------")
 titleLabel.TextSize = 18
 titleLabel.Font = Enum.Font.Merriweather 
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1150,7 +1150,7 @@ end)
 disableProteinEgg()
 coroutine.wrap(monitorProteinEgg)()
 
-local titleLabel = Killer:AddLabel("------------------------------------------------------")
+local titleLabel = Killer:AddLabel("---------------------------------")
 titleLabel.TextSize = 18
 titleLabel.Font = Enum.Font.Merriweather 
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1179,7 +1179,7 @@ Killer:AddButton("Size 30", function()
     end)
 end)
 
-local titleLabel = Killer:AddLabel("------------------------------------------------------")
+local titleLabel = Killer:AddLabel("---------------------------------")
 titleLabel.TextSize = 18
 titleLabel.Font = Enum.Font.Merriweather 
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1371,7 +1371,7 @@ tabteleport:AddButton("Safe Island", function()
 end)
 
 
-local titleLabel = tabteleport:AddLabel("------------------------------------------------------")
+local titleLabel = tabteleport:AddLabel("---------------------------------")
 titleLabel.TextSize = 18
 titleLabel.Font = Enum.Font.Merriweather 
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
