@@ -67,6 +67,305 @@ local window = library:AddWindow("Kill Anyone | - Welcome " .. displayName, {
     can_resize = false,
 })
 
+
+local Stats = window:AddTab("Stats")
+
+local SelectPlayerName = ""
+
+local PlayerDrop = Stats:AddDropdown("Select Player", function(Value)
+    SelectPlayerName = Value:match("| (.+)") or Value
+end)
+
+local function getPlayerDropdownText(player)
+    local cleanDisplayName = player.DisplayName:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
+    if cleanDisplayName == "" or cleanDisplayName == player.Name then
+        return player.Name
+    else
+        return cleanDisplayName .. " | " .. player.Name
+    end
+end
+
+for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+    if player ~= LocalPlayer then
+        PlayerDrop:Add(getPlayerDropdownText(player))
+    end
+end
+
+game:GetService("Players").PlayerAdded:Connect(function(player)
+    if player ~= LocalPlayer then
+        PlayerDrop:Add(getPlayerDropdownText(player))
+    end
+end)
+
+game:GetService("Players").PlayerRemoving:Connect(function(player)
+    local displayText = getPlayerDropdownText(player)
+    PlayerDrop:Remove(displayText)
+    
+    if SelectPlayerName == player.Name then
+        SelectPlayerName = ""
+    end
+end)
+
+local function FormatNumberWithCommas(number)
+    local formatted = tostring(number):reverse():gsub("(%d%d%d)", "%1,"):reverse()
+    return formatted:gsub("^,", "")
+end
+
+local function FormatAbbreviated(number)
+    local abbreviations = {"", "K", "M", "B", "T", "Qa", "Qi"}
+    local abbreviationIndex = 1
+    while number >= 1000 and abbreviationIndex < #abbreviations do
+        number = number / 1000
+        abbreviationIndex = abbreviationIndex + 1
+    end
+    if number % 1 == 0 then
+        return string.format("%.0f", number) .. abbreviations[abbreviationIndex]
+    else
+        return string.format("%.2f", number):gsub("%.?0+$", "") .. abbreviations[abbreviationIndex]
+    end
+end
+
+local function FormatDisplay(value)
+    local normal = ""
+    if value % 1 == 0 then
+        normal = FormatNumberWithCommas(math.floor(value))
+    else
+        normal = string.format("%.2f", value):gsub("%.?0+$", "")
+    end
+    local abbreviated = FormatAbbreviated(value)
+    return " " .. normal .. " [ " .. abbreviated .. " ]"
+end
+
+local Update = Stats:AddLabel("Strength:")
+local Update1 = Stats:AddLabel("Gems:")
+local Update2 = Stats:AddLabel("Rebirth:")
+local Update3 = Stats:AddLabel("Agility:")
+local Update4 = Stats:AddLabel("Durability:")
+local Update5 = Stats:AddLabel("Kills:")
+local Update6 = Stats:AddLabel("Muscle King Time:")
+local Update9 = Stats:AddLabel("Current Map:")
+local Update10 = Stats:AddLabel("Custom Size:")
+local Update11 = Stats:AddLabel("Custom Speed:")
+local Update12 = Stats:AddLabel("Evil Karma:")
+local Update13 = Stats:AddLabel("Good Karma:")
+
+task.spawn(function()
+    while task.wait(0.1) do
+        if SelectPlayerName ~= "" then
+            local player = game.Players:FindFirstChild(SelectPlayerName)
+            if player then
+                if player:FindFirstChild("Gems") then
+                    Update1.Text = "Gems: " .. FormatDisplay(player.Gems.Value)
+                else
+                    Update1.Text = "Gems: N/A"
+                end
+                if player:FindFirstChild("Agility") then
+                    Update3.Text = "Agility: " .. FormatDisplay(player.Agility.Value)
+                else
+                    Update3.Text = "Agility: N/A"
+                end
+                if player:FindFirstChild("Durability") then
+                    Update4.Text = "Durability: " .. FormatDisplay(player.Durability.Value)
+                else
+                    Update4.Text = "Durability: N/A"
+                end
+                if player:FindFirstChild("muscleKingTime") then
+                    Update6.Text = "Muscle King Time: " .. FormatDisplay(player.muscleKingTime.Value)
+                else
+                    Update6.Text = "Muscle King Time: N/A"
+                end
+                if player:FindFirstChild("customSize") then
+                    Update10.Text = "Custom Size: " .. FormatDisplay(player.customSize.Value)
+                else
+                    Update10.Text = "Custom Size: N/A"
+                end
+                if player:FindFirstChild("customSpeed") then
+                    Update11.Text = "Custom Speed: " .. FormatDisplay(player.customSpeed.Value)
+                else
+                    Update11.Text = "Custom Speed: N/A"
+                end
+                if player:FindFirstChild("evilKarma") then
+                    Update12.Text = "Evil Karma: " .. FormatDisplay(player.evilKarma.Value)
+                else
+                    Update12.Text = "Evil Karma: N/A"
+                end
+                if player:FindFirstChild("goodKarma") then
+                    Update13.Text = "Good Karma: " .. FormatDisplay(player.goodKarma.Value)
+                else
+                    Update13.Text = "Good Karma: N/A"
+                end
+
+                local leaderstats = player:FindFirstChild("leaderstats")
+                if leaderstats then
+                    if leaderstats:FindFirstChild("Strength") then
+                        Update.Text = "Strength: " .. FormatDisplay(leaderstats.Strength.Value)
+                    else
+                        Update.Text = "Strength: N/A"
+                    end
+                    if leaderstats:FindFirstChild("Rebirths") then
+                        Update2.Text = "Rebirth: " .. FormatDisplay(leaderstats.Rebirths.Value)
+                    else
+                        Update2.Text = "Rebirth: N/A"
+                    end
+                    if leaderstats:FindFirstChild("Kills") then
+                        Update5.Text = "Kills: " .. FormatDisplay(leaderstats.Kills.Value)
+                    else
+                        Update5.Text = "Kills: N/A"
+                    end
+                else
+                    Update.Text = "Strength: N/A"
+                    Update2.Text = "Rebirth: N/A"
+                    Update5.Text = "Kills: N/A"
+                end
+
+                if player:FindFirstChild("currentMap") then
+                    Update9.Text = "Current Map: " .. tostring(player.currentMap.Value)
+                else
+                    Update9.Text = "Current Map: N/A"
+                end
+            else
+                Update.Text = "Strength:"
+                Update1.Text = "Gems:"
+                Update2.Text = "Rebirth:"
+                Update3.Text = "Agility:"
+                Update4.Text = "Durability:"
+                Update5.Text = "Kills:"
+                Update6.Text = "Muscle King Time:"
+                Update9.Text = "Current Map:"
+                Update10.Text = "Custom Size:"
+                Update11.Text = "Custom Speed:"
+                Update12.Text = "Evil Karma:"
+                Update13.Text = "Good Karma:"
+            end
+        else
+            Update.Text = "Strength:"
+            Update1.Text = "Gems:"
+            Update2.Text = "Rebirth:"
+            Update3.Text = "Agility:"
+            Update4.Text = "Durability:"
+            Update5.Text = "Kills:"
+            Update6.Text = "Muscle King Time:"
+            Update9.Text = "Current Map:"
+            Update10.Text = "Custom Size:"
+            Update11.Text = "Custom Speed:"
+            Update12.Text = "Evil Karma:"
+            Update13.Text = "Good Karma:"
+        end
+    end
+end)
+
+local nothinglabel = Stats:AddLabel("")
+
+Stats:AddLabel("Advanced Stats:").TextSize = 20
+
+local enemyHealthLabel = Stats:AddLabel("Enemy Health: N/A")
+enemyHealthLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local playerDamageLabel = Stats:AddLabel("Your Damage: N/A")
+playerDamageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local hitsToKillLabel = Stats:AddLabel("Hits to Kill: N/A")
+hitsToKillLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local function calculateEnemyHealth(targetPlayer)
+    if not targetPlayer then return 0 end
+    local baseDura = 0
+    local durabilityStat =
+        targetPlayer:FindFirstChild("Durability") or
+        (targetPlayer:FindFirstChild("leaderstats") and targetPlayer.leaderstats:FindFirstChild("Durability"))
+    if durabilityStat then
+        baseDura = durabilityStat.Value
+    end
+    local totalMultiplier = 1
+    local ultFolder = targetPlayer:FindFirstChild("ultimatesFolder")
+    if ultFolder then
+        local infernalHealth = ultFolder:FindFirstChild("Infernal Health")
+        if infernalHealth then
+            totalMultiplier = totalMultiplier + 0.15 * (infernalHealth.Value or 0)
+        end
+    end
+    local backpack = targetPlayer:FindFirstChild("Backpack")
+    if backpack then
+        local equippedPets = backpack:FindFirstChild("EquippedPets") or backpack:FindFirstChild("equippedPets")
+        if equippedPets then
+            for _, pet in ipairs(equippedPets:GetChildren()) do
+                if string.lower(tostring(pet)):match("mighty") and string.lower(tostring(pet)):match("monster") then
+                    totalMultiplier = totalMultiplier + 0.5
+                    break
+                end
+            end
+        end
+    end
+    return baseDura * totalMultiplier
+end
+
+local function calculateLocalPlayerDamage()
+    local LocalPlayer = game.Players.LocalPlayer
+    if not LocalPlayer then return 0 end
+    local strengthStat = nil
+    local leaderstats = LocalPlayer:FindFirstChild("leaderstats")
+    if leaderstats then
+        strengthStat = leaderstats:FindFirstChild("Strength")
+    end
+    if not strengthStat then return 0 end
+    local baseDamage = strengthStat.Value * 0.0667
+    local totalMultiplier = 1
+    local ultFolder = LocalPlayer:FindFirstChild("ultimatesFolder")
+    if ultFolder then
+        local demonDamage = ultFolder:FindFirstChild("Demon Damage")
+        if demonDamage then
+            totalMultiplier = totalMultiplier + math.min(0.1 * (demonDamage.Value or 0), 0.5)
+        end
+    end
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if backpack then
+        local equippedPets = backpack:FindFirstChild("EquippedPets") or backpack:FindFirstChild("equippedPets")
+        if equippedPets then
+            for _, pet in ipairs(equippedPets:GetChildren()) do
+                if string.lower(tostring(pet)):match("wild") and string.lower(tostring(pet)):match("wizard") then
+                    totalMultiplier = totalMultiplier + 0.5
+                    break
+                end
+            end
+        end
+    end
+    return baseDamage * totalMultiplier
+end
+
+local function calculateHitsToKill(health, damage)
+    if damage <= 0 then return "ÃƒÂ¢Ã‹â€ Ã…Â¾" end
+    local hits = math.ceil(health / damage)
+    if hits > 50 then
+        return "ÃƒÂ¢Ã‹â€ Ã…Â¾"
+    elseif hits < 1 then
+        return 1
+    else
+        return hits
+    end
+end
+
+local function updateAdvancedStats(targetPlayer)
+    if not targetPlayer then
+        enemyHealthLabel.Text = "Enemy Health:"
+        playerDamageLabel.Text = "Your Damage:"
+        hitsToKillLabel.Text = "Hits to Kill:"
+        return
+    end
+    local enemyHealth = calculateEnemyHealth(targetPlayer)
+    local playerDamage = calculateLocalPlayerDamage()
+    local hitsToKill = calculateHitsToKill(enemyHealth, playerDamage)
+    enemyHealthLabel.Text = "Enemy Health: " .. FormatDisplay(enemyHealth)
+    playerDamageLabel.Text = "Your Damage: " .. FormatDisplay(playerDamage)
+    hitsToKillLabel.Text = "Hits to Kill: " .. tostring(hitsToKill)
+end
+
+task.spawn(function()
+    while task.wait(0.3) do
+        local selectedPlayer = game.Players:FindFirstChild(SelectPlayerName)
+        updateAdvancedStats(selectedPlayer)
+    end
+end)
+
 local Killer = window:AddTab("Destroy Anyone")
 
 local Players = game:GetService("Players")
@@ -1069,4 +1368,142 @@ tabteleport:AddButton("Safe Island", function()
     task.wait(0.2)
     
     humanoidRootPart.CFrame = CFrame.new(posX, posY, posZ)
+end)
+
+
+local titleLabel = tabteleport:AddLabel("------------------------------------------------------")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+tabteleport:AddButton("Low Graphics", function()
+    pcall(function()
+        settings().Rendering.QualityLevel = 1
+        settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level01
+    end)
+end)
+
+tabteleport:AddButton("Remove Shadows & Fog", function()
+    local lighting = game:GetService("Lighting")
+    lighting.GlobalShadows = false
+    lighting.FogEnd = 10000000000
+end)
+
+tabteleport:AddButton("Remove Textures", function()
+    for _, obj in pairs(game:GetDescendants()) do
+        if obj:IsA("Decal") or obj:IsA("Texture") then
+            pcall(function()
+                obj.Transparency = 1
+            end)
+        end
+    end
+end)
+
+tabteleport:AddButton("Disable Particles", function()
+    for _, obj in pairs(game:GetDescendants()) do
+        if obj:IsA("ParticleEmitter") or obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+            pcall(function()
+                obj.Enabled = false
+            end)
+        end
+    end
+end)
+
+tabteleport:AddButton("Disable Lighting Effects", function()
+    local lighting = game:GetService("Lighting")
+    for _, effect in pairs(lighting:GetChildren()) do
+        if effect:IsA("BlurEffect") or effect:IsA("SunRaysEffect") or effect:IsA("ColorCorrectionEffect")
+        or effect:IsA("BloomEffect") or effect:IsA("DepthOfFieldEffect") then
+            pcall(function()
+                effect.Enabled = false
+            end)
+        end
+    end
+end)
+
+tabteleport:AddButton("Optimize Parts", function()
+    for _, part in pairs(game:GetDescendants()) do
+        if part:IsA("BasePart") then
+            pcall(function()
+                part.Material = Enum.Material.SmoothPlastic
+                part.CastShadow = false
+            end)
+        end
+    end
+end)
+
+tabteleport:AddButton("Disable Lights", function()
+    for _, light in pairs(game:GetDescendants()) do
+        if light:IsA("PointLight") or light:IsA("SpotLight") or light:IsA("SurfaceLight") then
+            pcall(function()
+                light.Enabled = false
+            end)
+        end
+    end
+end)
+
+tabteleport:AddButton("Mute Sounds", function()
+    for _, sound in pairs(game:GetDescendants()) do
+        if sound:IsA("Sound") then
+            pcall(function()
+                sound.Volume = 0
+            end)
+        end
+    end
+end)
+
+tabteleport:AddButton("Optimize Terrain", function()
+    local terrain = workspace:FindFirstChildOfClass("Terrain")
+    if terrain then
+        pcall(function()
+            terrain.WaterWaveSize = 0
+            terrain.WaterWaveSpeed = 0
+            terrain.WaterReflectance = 0
+            terrain.Decorations = false
+        end)
+    end
+end)
+
+tabteleport:AddButton("Stop Animations", function()
+    local player = game.Players.LocalPlayer
+    if player and player.Character then
+        local humanoid = player.Character:FindFirstChildWhichIsA("Humanoid")
+        if humanoid then
+            for _, animation in pairs(humanoid:GetPlayingAnimationTracks()) do
+                pcall(function()
+                    animation:Stop()
+                end)
+            end
+        end
+    end
+end)
+
+tabteleport:AddButton("Restore Graphics", function()
+    local lighting = game:GetService("Lighting")
+    lighting.GlobalShadows = true
+    lighting.FogEnd = 100000
+    lighting.FogStart = 0
+
+    pcall(function()
+        settings().Rendering.QualityLevel = 10
+    end)
+
+    for _, obj in pairs(game:GetDescendants()) do
+        if obj:IsA("ParticleEmitter") or obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then
+            pcall(function() obj.Enabled = true end)
+        end
+        if obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
+            pcall(function() obj.Enabled = true end)
+        end
+        if obj:IsA("Sound") then
+            pcall(function() obj.Volume = 1 end)
+        end
+    end
+
+    for _, effect in pairs(lighting:GetChildren()) do
+        if effect:IsA("BlurEffect") or effect:IsA("SunRaysEffect") or effect:IsA("ColorCorrectionEffect")
+        or effect:IsA("BloomEffect") or effect:IsA("DepthOfFieldEffect") then
+            pcall(function() effect.Enabled = true end)
+        end
+    end
 end)
