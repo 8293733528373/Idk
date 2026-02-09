@@ -845,3 +845,27 @@ end)
 
 disableProteinEgg()
 coroutine.wrap(monitorProteinEgg)()
+
+local titleLabel = Killer:AddLabel("Sizes")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+Killer:AddButton("Size NaN", function()
+    local sizeToSet = 0/0
+    pcall(function()
+        game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", sizeToSet)
+    end)
+end)
+
+Killer:AddButton("Size 2", function()
+    pcall(function()
+        game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 2)
+    end)
+end)
+
+Killer:AddButton("Size 30", function()
+    pcall(function()
+        game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 30)
+    end)
+end)
