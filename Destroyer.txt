@@ -938,169 +938,87 @@ Killer:AddButton("Recover Punch Anim", function()
     RecoveryPunch()
 end)
 
-local autoEquipPunch = false
-local autoPunchNoAnim = false
-local autoPunchActive = false
-local fastHitActive = false
+local functionsEnabled = {
+    autoEquip = false,
+    noAnim = false, 
+    auto = false,
+    fast = false
+}
 
-local function stopAllPunchModes()
-    autoPunchNoAnim = false
-    autoPunchActive = false
-    fastHitActive = false
-end
+local currentCharacter = nil
+local muscleEvent = nil
 
-local function findPunch()
-    local char = LocalPlayer.Character
-    local backpack = LocalPlayer.Backpack
+local function reconnectCharacterEvents()
+    if not LocalPlayer.Character then return end
     
-    if char then
-        local punch = char:FindFirstChild("Punch")
-        if punch then
-            return punch, char
-        end
-    end
+    currentCharacter = LocalPlayer.Character
+    muscleEvent = LocalPlayer:FindFirstChild("muscleEvent")
     
-    if backpack then
-        local punch = backpack:FindFirstChild("Punch")
-        if punch then
-            return punch, backpack
-        end
-    end
-    
-    return nil, nil
-end
-
-local function equipPunch()
-    local punch, parent = findPunch()
-    if punch and parent == LocalPlayer.Backpack then
-        punch.Parent = LocalPlayer.Character
-        task.wait(0.1)
-    end
-    return punch
-end
-
-local function onCharacterAdded(char)
-    task.wait(1.5)
-    
-    local humanoid = char:WaitForChild("Humanoid", 5)
+    local humanoid = currentCharacter:WaitForChild("Humanoid", 2)
     if humanoid then
-        humanoid.Died:Once(function()
-            task.wait(1)
-        end)
-    end
-    
-    if autoEquipPunch then
-        equipPunch()
-    end
-end
-
-LocalPlayer.CharacterAdded:Connect(onCharacterAdded)
-
-Killer:AddSwitch("Auto Equip Punch", function(state)
-    autoEquipPunch = state
-    if state then
-        equipPunch()
-        task.spawn(function()
-            while autoEquipPunch do
-                equipPunch()
-                task.wait(1)
+        humanoid.Died:Connect(function()
+            task.wait(3)
+            if LocalPlayer.Character ~= currentCharacter then
+                reconnectCharacterEvents()
             end
         end)
     end
+end
+
+reconnectCharacterEvents()
+LocalPlayer.CharacterAdded:Connect(reconnectCharacterEvents)
+
+local function getPunch()
+    if not currentCharacter then return nil end
+    
+    local punch = currentCharacter:FindFirstChild("Punch")
+    if punch then return punch end
+    
+    punch = LocalPlayer.Backpack:FindFirstChild("Punch")
+    if punch then
+        punch.Parent = currentCharacter
+        task.wait(0.3)
+        return punch
+    end
+    
+    return nil
+end
+
+Killer:AddSwitch("Auto Equip Punch", function(state)
+    functionsEnabled.autoEquip = state
+    task.spawn(function()
+        while functionsEnabled.autoEquip do
+            local punch = getPunch()
+            task.wait(2)
+        end
+    end)
 end)
 
 Killer:AddSwitch("Auto Punch [Without Animation]", function(state)
-    if state then
-        stopAllPunchModes()
-    end
-    
-    autoPunchNoAnim = state
+    functionsEnabled.noAnim = state
     task.spawn(function()
-        while autoPunchNoAnim do
-            local punch = equipPunch()
-            if punch and LocalPlayer.muscleEvent then
-                pcall(function()
-                    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-                    task.wait(0.05)
-                    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-                end)
-            end
-            task.wait(0.15)
+        while functionsEnabled.noAnim and muscleEvent do
+            pcall(function()
+                muscleEvent:FireServer("punch", "rightHand")
+                task.wait(0.1)
+                muscleEvent:FireServer("punch", "leftHand")
+            end)
+            task.wait(0.3)
         end
     end)
 end)
 
 Killer:AddSwitch("Auto Punch", function(state)
-    if state then
-        stopAllPunchModes()
-    end
-    
-    fastHitActive = state
-    if state then
-        task.spawn(function()
-            while fastHitActive do
-                local punch = equipPunch()
-                if punch then
-                    local attackTime = punch:FindFirstChild("attackTime")
-                    if attackTime then
-                        attackTime.Value = 0
-                    end
-                end
-                task.wait(0.3)
+    functionsEnabled.auto = state
+    task.spawn(function()
+        while functionsEnabled.auto do
+            local punch = getPunch()
+            if punch then
+                pcall(function() punch:Activate() end)
             end
-        end)
-        
-        task.spawn(function()
-            while fastHitActive do
-                local punch = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Punch")
-                if punch then
-                    pcall(function()
-                        punch:Activate()
-                    end)
-                end
-                task.wait(0.25)
-            end
-        end)
-    else
-        local punch = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Punch")
-        if punch then
-            punch.Parent = LocalPlayer.Backpack
+            task.wait(0.5)
         end
-    end
-end)
-
-Killer:AddSwitch("Fast punch", function(state)
-    if state then
-        stopAllPunchModes()
-    end
-    
-    autoPunchActive = state
-    if state then
-        task.spawn(function()
-            while autoPunchActive do
-                local punch = equipPunch()
-                if punch then
-                    local attackTime = punch:FindFirstChild("attackTime")
-                    if attackTime then
-                        attackTime.Value = 0
-                    end
-                    
-                    pcall(function()
-                        for i = 1, 2 do
-                            punch:Activate()
-                            task.wait(0.07)
-                        end
-                    end)
-                end
-                task.wait(0.35)
-            end
-        end)
-    else
-        local punch = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Punch")
-        if punch then
-            punch.Parent = LocalPlayer.Backpack
-        end
-    end
+    end)
 end)
 
 local LocalPlayer = game.Players.LocalPlayer
