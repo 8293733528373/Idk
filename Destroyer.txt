@@ -1605,3 +1605,19 @@ tabteleport:AddButton("Full Optimization", function()
         end
     end
 end)
+
+local titleLabel = tabteleport:AddLabel("_______________________________________")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local titleLabel = tabteleport:AddLabel("Rejoin Options")
+titleLabel.TextSize = 20
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+tabteleport:AddButton("Rejoin Server", function()
+    local ts = game:GetService("TeleportService")
+    local p = game:GetService("Players").LocalPlayer
+    ts:Teleport(game.PlaceId, p)
+end)
