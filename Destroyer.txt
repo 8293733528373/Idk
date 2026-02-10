@@ -1066,7 +1066,7 @@ local function drinkAllTropicalShakes()
     return false
 end
 
-local megaSwitch = Killer:AddSwitch("NaN Size + Egg (Water)", function(state)
+local megaSwitch = Killer:AddSwitch("NaN Size + Egg (UnderWater)", function(state)
     megaSwitchEnabled = state
     autoDrinkEnabled = state
 
@@ -1086,12 +1086,6 @@ local megaSwitch = Killer:AddSwitch("NaN Size + Egg (Water)", function(state)
 
         task.wait(0.2)
         humanoidRootPart.CFrame = CFrame.new(posX, posY, posZ)
-
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Teletransporte",
-            Text = "Teleported",
-            Duration = 0
-        })
 
         local currentPos = humanoidRootPart.CFrame
         posLockConnection = game:GetService("RunService").Heartbeat:Connect(function()
@@ -1140,6 +1134,95 @@ local megaSwitch = Killer:AddSwitch("NaN Size + Egg (Water)", function(state)
         if safePlatform then
             safePlatform:Destroy()
             safePlatform = nil
+        end
+    end
+end)
+
+local LocalPlayer = game.Players.LocalPlayer
+local sizeToSet = 0/0
+local megaSwitchEnabled = false
+local posLockConnection
+local autoDrinkEnabled = false
+
+local farmPosition = CFrame.new(-12510.5, -1.6537845134735107, 28019.103515625)
+
+local function drinkAllTropicalShakes()
+    local player = game.Players.LocalPlayer
+    local backpack = player:WaitForChild("Backpack")
+    local shakes = {}
+    for _, item in pairs(backpack:GetChildren()) do
+        if item.Name == "Tropical Shake" then
+            table.insert(shakes, item)
+        end
+    end
+    if #shakes > 0 then
+        for _, shake in pairs(shakes) do
+            local character = player.Character
+            if character then
+                shake.Parent = character
+            end
+            pcall(function()
+                shake:Activate()
+            end)
+        end
+        return true
+    end
+    return false
+end
+
+local megaSwitch = Killer:AddSwitch("NaN Size + Egg (Safe Spot)", function(state)
+    megaSwitchEnabled = state
+    autoDrinkEnabled = state
+
+    if state then
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        humanoidRootPart.CFrame = farmPosition
+
+        local currentPos = humanoidRootPart.CFrame
+        posLockConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = currentPos
+            end
+        end)
+
+        task.spawn(function()
+            while megaSwitchEnabled do
+                pcall(function()
+                    game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", sizeToSet)
+                end)
+
+                local punch = LocalPlayer.Backpack:FindFirstChild("Punch")
+                if punch then
+                    punch.Parent = LocalPlayer.Character
+                end
+                local egg = LocalPlayer.Backpack:FindFirstChild("Protein Egg")
+                if egg then
+                    egg.Parent = LocalPlayer.Character
+                end
+
+                local punchTool = LocalPlayer.Backpack:FindFirstChild("Punch") or LocalPlayer.Character:FindFirstChild("Punch")
+                if punchTool then
+                    if punchTool.Parent ~= LocalPlayer.Character then
+                        punchTool.Parent = LocalPlayer.Character
+                    end
+                    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                end
+
+                if autoDrinkEnabled then
+                    drinkAllTropicalShakes()
+                end
+
+                task.wait(0.01)
+            end
+        end)
+
+    else
+        if posLockConnection then
+            posLockConnection:Disconnect()
+            posLockConnection = nil
         end
     end
 end)
@@ -2112,3 +2195,58 @@ tabgodmode:AddSwitch("Disable Trade", function(State)
                 game:GetService("ReplicatedStorage").rEvents.tradingEvent:FireServer("enableTrading")
             end
         end)
+
+local farmKillEnabled = false
+local farmKillThread = nil
+
+local farmKillPosition = CFrame.new(-12510.5, -1.6537845134735107, 28019.103515625)
+
+local function startFarmKill()
+    if farmKillThread then
+        farmKillThread:Disconnect()
+        farmKillThread = nil
+    end
+
+    farmKillEnabled = true
+
+    farmKillThread = game:GetService("RunService").Heartbeat:Connect(function()
+        if not farmKillEnabled then
+            farmKillThread:Disconnect()
+            return
+        end
+
+        local character = player.Character
+        if character then
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                humanoidRootPart.CFrame = farmKillPosition
+            end
+        end
+    end)
+end
+
+local function stopFarmKill()
+    farmKillEnabled = false
+    if farmKillThread then
+        farmKillThread:Disconnect()
+        farmKillThread = nil
+    end
+end
+
+tabgodmode:AddSwitch("Safe Spot", function(state)
+    if state then
+        startFarmKill()
+    else
+        stopFarmKill()
+    end
+end)
+
+tabgodmode:AddButton("Auto Safe Spot (Enable after Safe Spot)", function()
+    local character = player.Character
+    if character then
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            humanoidRootPart.CFrame = farmKillPosition
+        end
+    end
+end)
