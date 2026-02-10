@@ -2167,7 +2167,6 @@ titleLabel.TextSize = 20
 titleLabel.Font = Enum.Font.Merriweather 
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-
 local infJumpEnabled = false
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -2195,6 +2194,16 @@ tabgodmode:AddSwitch("Disable Trade", function(State)
                 game:GetService("ReplicatedStorage").rEvents.tradingEvent:FireServer("enableTrading")
             end
         end)
+
+local titleLabel = tabgodmode:AddLabel("_______________________________________")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local titleLabel = tabgodmode:AddLabel("Peace")
+titleLabel.TextSize = 20
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 local farmKillEnabled = false
 local farmKillThread = nil
