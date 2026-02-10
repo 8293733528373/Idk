@@ -1718,7 +1718,7 @@ titleLabel.Font = Enum.Font.Merriweather
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 local godModeToggle = false
-tabgodmode:AddSwitch("God Mode [Brawl]", function(State)
+tabgodmode:AddSwitch("God Mode (Brawl)", function(State)
     godModeToggle = State
     if State then
         task.spawn(function()
@@ -1855,7 +1855,7 @@ titleLabel.Font = Enum.Font.Merriweather
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 local titleLabel = tabgodmode:AddLabel("Sizes")
-titleLabel.TextSize = 18
+titleLabel.TextSize = 20
 titleLabel.Font = Enum.Font.Merriweather 
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
@@ -1982,6 +1982,12 @@ tabgodmode:AddButton("Remove Ad", function()
     end)
 end)
 
+tabgodmode:AddButton("Shiftlock (New)", function()
+pcall(function()
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Shiftlockformobile-105913"))()
+end)
+end)
+
 local timeDropdown = tabgodmode:AddDropdown("Change Time", function(selection)
     local lighting = game:GetService("Lighting")
     lighting.Brightness = 2
@@ -2039,3 +2045,4 @@ timeDropdown:Add("Midnight")
 timeDropdown:Add("Dawn")
 timeDropdown:Add("Early Morning")
 timeDropdown:Add("Day")
+
