@@ -1718,7 +1718,7 @@ titleLabel.Font = Enum.Font.Merriweather
 titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 local godModeToggle = false
-tabgodmode:AddSwitch("God Mode (Brawl)", function(State)
+tabgodmode:AddSwitch("God Mode (V1)", function(State)
     godModeToggle = State
     if State then
         task.spawn(function()
@@ -1727,6 +1727,34 @@ tabgodmode:AddSwitch("God Mode (Brawl)", function(State)
                 task.wait()
             end
         end)
+    end
+end)
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+local godModeToggle = false
+
+local function autoJoinBrawl()
+    while godModeToggle do
+        pcall(function()
+            ReplicatedStorage.rEvents.brawlEvent:FireServer("joinBrawl")
+        end)
+        task.wait(0.1)
+    end
+end
+
+tabgodmode:AddSwitch("God Mode (V2)", function(state)
+    godModeToggle = state
+    if state then
+        task.spawn(autoJoinBrawl)
+    end
+end)
+
+player.CharacterAdded:Connect(function()
+    if godModeToggle then
+        task.spawn(autoJoinBrawl)
     end
 end)
 
@@ -2046,3 +2074,41 @@ timeDropdown:Add("Dawn")
 timeDropdown:Add("Early Morning")
 timeDropdown:Add("Day")
 
+local titleLabel = tabgodmode:AddLabel("_______________________________________")
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local titleLabel = tabgodmode:AddLabel("Tools")
+titleLabel.TextSize = 20
+titleLabel.Font = Enum.Font.Merriweather 
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+
+local infJumpEnabled = false
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+player.CharacterAdded:Connect(function(char)
+    character = char
+    humanoid = char:WaitForChild("Humanoid")
+end)
+
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if infJumpEnabled and humanoid then
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
+
+tabgodmode:AddSwitch("Inf Jump", function(state)
+    infJumpEnabled = state
+end)
+
+tabgodmode:AddSwitch("Disable Trade", function(State)
+            if State then
+                game:GetService("ReplicatedStorage").rEvents.tradingEvent:FireServer("disableTrading")
+            else
+                game:GetService("ReplicatedStorage").rEvents.tradingEvent:FireServer("enableTrading")
+            end
+        end)
