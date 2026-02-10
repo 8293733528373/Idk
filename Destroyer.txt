@@ -2195,6 +2195,77 @@ tabgodmode:AddSwitch("Disable Trade", function(State)
             end
         end)
 
+local chatSpyEnabled = false
+local spyConnection = nil
+
+tabgodmode:AddSwitch("Chat Spy", function(state)
+    chatSpyEnabled = state
+    
+    if chatSpyEnabled then
+        local chatEvents = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents")
+        local sayMessage = chatEvents:WaitForChild("SayMessageRequest")
+        local onMessageDone = chatEvents:WaitForChild("OnMessageDoneFiltering")
+        
+        local function processMessage(speaker, message)
+            if speaker == player then return end
+            
+            local cleanMsg = message:gsub("[\n\r]", ""):gsub("\t", " "):gsub("[ ]+", " ")
+            local isPublic = false
+            
+            local conn = onMessageDone.OnClientEvent:Connect(function(msgData, channel)
+                if msgData.SpeakerUserId == speaker.UserId then
+                    isPublic = true
+                end
+            end)
+            
+            wait(0.5)
+            conn:Disconnect()
+            
+            if not isPublic then
+                game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
+                    Text = "[SPY] " .. speaker.Name .. ": " .. cleanMsg,
+                    Color = Color3.fromRGB(0, 255, 255)
+                })
+            end
+        end
+        
+        for _, p in pairs(game.Players:GetPlayers()) do
+            if p ~= player then
+                p.Chatted:Connect(function(msg)
+                    processMessage(p, msg)
+                end)
+            end
+        end
+        
+        game.Players.PlayerAdded:Connect(function(newPlayer)
+            newPlayer.Chatted:Connect(function(msg)
+                processMessage(newPlayer, msg)
+            end)
+        end)
+       
+    else
+    end
+end)
+
+tabgodmode:AddButton("Korblox", function()
+    local char = player.Character
+    if char then
+        local rLower = char:FindFirstChild("RightLowerLeg")
+        local rUpper = char:FindFirstChild("RightUpperLeg")
+        local rFoot = char:FindFirstChild("RightFoot")
+        
+        if rLower and rUpper and rFoot then
+            rLower.MeshId = "http://www.roblox.com/asset/?id=902942093"
+            rLower.Transparency = 1
+            rUpper.MeshId = "http://www.roblox.com/asset/?id=902942096"
+            rUpper.TextureID = "http://roblox.com/asset/?id=902843398"
+            rFoot.MeshId = "http://www.roblox.com/asset/?id=902942089"
+            rFoot.Transparency = 1
+           
+        end
+    end
+end)
+
 local titleLabel = tabgodmode:AddLabel("_______________________________________")
 titleLabel.TextSize = 18
 titleLabel.Font = Enum.Font.Merriweather 
