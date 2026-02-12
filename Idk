@@ -1535,10 +1535,22 @@ local autoPetSystem = Killer:AddSwitch("Auto Replace Pets", function(state)
     end
 end)
 
-local BlockEatingEggs = Killer:AddSwitch("Block Eating Eggs", function(Value)
+local BlockEggs = Killer:AddSwitch("Block Protein Egg", function(Value)
     if Value then
+        local function disableEgg()
+            local backpack = LocalPlayer:FindFirstChild("Backpack")
+            if backpack then
+                local egg = backpack:FindFirstChild("Protein Egg")
+                if egg then
+                    egg.Enabled = false
+                end
+            end
+        end
+        
+        local conn = game:GetService("RunService").Heartbeat:Connect(disableEgg)
+        
         local mt = getrawmetatable(game)
-        local old_namecall = mt.__namecall
+        local old = mt.__namecall
         setreadonly(mt, false)
         
         mt.__namecall = newcclosure(function(self, ...)
@@ -1546,11 +1558,10 @@ local BlockEatingEggs = Killer:AddSwitch("Block Eating Eggs", function(Value)
             
             if method == "FireServer" then
                 local remoteName = tostring(self)
-                
-                if remoteName:find("Eat") or remoteName:find("Consume") or remoteName:find("Feed") then
-                    local character = game.Players.LocalPlayer.Character
-                    if character then
-                        local tool = character:FindFirstChildWhichIsA("Tool")
+                if remoteName == "EatEvent" or remoteName == "ConsumeEvent" or remoteName:find("Eat") then
+                    local char = LocalPlayer.Character
+                    if char then
+                        local tool = char:FindFirstChildWhichIsA("Tool")
                         if tool and tool.Name == "Protein Egg" then
                             return
                         end
@@ -1558,38 +1569,28 @@ local BlockEatingEggs = Killer:AddSwitch("Block Eating Eggs", function(Value)
                 end
             end
             
-            return old_namecall(self, ...)
+            return old(self, ...)
         end)
         
         setreadonly(mt, true)
         
-        local connection
-        connection = game:GetService("RunService").Heartbeat:Connect(function()
-            local character = game.Players.LocalPlayer.Character
-            if character then
-                local tool = character:FindFirstChildWhichIsA("Tool")
-                if tool and tool.Name == "Protein Egg" then
-                    tool.Enabled = false
-                end
-            end
-        end)
-        
-        _G.EggConnection = connection
+        _G.EggConn = conn
+        _G.EggOldHook = old
         
     else
+        if _G.EggConn then
+            _G.EggConn:Disconnect()
+            _G.EggConn = nil
+        end
+        
         local mt = getrawmetatable(game)
         setreadonly(mt, false)
-        mt.__namecall = nil
+        mt.__namecall = _G.EggOldHook
         setreadonly(mt, true)
-        
-        if _G.EggConnection then
-            _G.EggConnection:Disconnect()
-            _G.EggConnection = nil
-        end
     end
 end)
 
-BlockEatingEggs:Set(true)
+BlockEggs:Set(true)
 
 local titleLabel = Killer:AddLabel("_______________________________________")
 titleLabel.TextSize = 18
