@@ -1535,49 +1535,6 @@ local autoPetSystem = Killer:AddSwitch("Auto Replace Pets", function(state)
     end
 end)
 
-local function disableProteinEgg()
-    pcall(function()
-        local backpack = LocalPlayer:WaitForChild("Backpack")
-        local proteinEgg = backpack:FindFirstChild("Protein Egg")
-        
-        if proteinEgg then
-            if proteinEgg.Enabled == false and proteinEgg.CanBeDropped == false then
-                return
-            else
-                proteinEgg:Destroy()
-                task.wait(0.1)
-            end
-        end
-    
-        local newEgg = Instance.new("Tool")
-        newEgg.Name = "Protein Egg"
-        newEgg.Enabled = false
-        newEgg.CanBeDropped = false
-        newEgg.RequiresHandle = false
-        newEgg.Parent = backpack
-    end)
-end
-
-local function monitorProteinEgg()
-    while true do
-        disableProteinEgg()
-        task.wait(0.5)
-    end
-end
-
-LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(1)
-    disableProteinEgg()
-end)
-
-Killer:AddButton("Disable Protein Egg", function()
-    disableProteinEgg()
-    coroutine.wrap(monitorProteinEgg)()
-end)
-
-disableProteinEgg()
-coroutine.wrap(monitorProteinEgg)()
-
 local BlockEatingEggs = Killer:AddSwitch("Block Eating Eggs", function(Value)
     if Value then
         local mt = getrawmetatable(game)
@@ -1589,11 +1546,15 @@ local BlockEatingEggs = Killer:AddSwitch("Block Eating Eggs", function(Value)
             local args = {...}
             
             if method == "FireServer" then
-                local character = game.Players.LocalPlayer.Character
-                if character then
-                    local tool = character:FindFirstChildWhichIsA("Tool")
-                    if tool and tool.Name == "Protein Egg" then
-                        return
+                local remoteName = tostring(self)
+                
+                if remoteName:find("Eat") or remoteName:find("Consume") or remoteName:find("Feed") then
+                    local character = game.Players.LocalPlayer.Character
+                    if character then
+                        local tool = character:FindFirstChildWhichIsA("Tool")
+                        if tool and tool.Name == "Protein Egg" then
+                            return
+                        end
                     end
                 end
             end
@@ -1603,19 +1564,6 @@ local BlockEatingEggs = Killer:AddSwitch("Block Eating Eggs", function(Value)
         
         setreadonly(mt, true)
         
-        local uis = game:GetService("UserInputService")
-        uis.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                local character = game.Players.LocalPlayer.Character
-                if character then
-                    local tool = character:FindFirstChildWhichIsA("Tool")
-                    if tool and tool.Name == "Protein Egg" then
-                        return true
-                    end
-                end
-            end
-        end)
-        
         coroutine.wrap(function()
             while Value do
                 local character = game.Players.LocalPlayer.Character
@@ -1623,10 +1571,6 @@ local BlockEatingEggs = Killer:AddSwitch("Block Eating Eggs", function(Value)
                     local tool = character:FindFirstChildWhichIsA("Tool")
                     if tool and tool.Name == "Protein Egg" then
                         tool.Enabled = false
-                        tool.Activated:Connect(function() return end)
-                        tool:GetPropertyChangedSignal("Enabled"):Connect(function()
-                            tool.Enabled = false
-                        end)
                     end
                 end
                 task.wait(0.1)
