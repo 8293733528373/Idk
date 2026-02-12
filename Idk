@@ -1543,7 +1543,6 @@ local BlockEatingEggs = Killer:AddSwitch("Block Eating Eggs", function(Value)
         
         mt.__namecall = newcclosure(function(self, ...)
             local method = getnamecallmethod()
-            local args = {...}
             
             if method == "FireServer" then
                 local remoteName = tostring(self)
@@ -1564,24 +1563,29 @@ local BlockEatingEggs = Killer:AddSwitch("Block Eating Eggs", function(Value)
         
         setreadonly(mt, true)
         
-        coroutine.wrap(function()
-            while Value do
-                local character = game.Players.LocalPlayer.Character
-                if character then
-                    local tool = character:FindFirstChildWhichIsA("Tool")
-                    if tool and tool.Name == "Protein Egg" then
-                        tool.Enabled = false
-                    end
+        local connection
+        connection = game:GetService("RunService").Heartbeat:Connect(function()
+            local character = game.Players.LocalPlayer.Character
+            if character then
+                local tool = character:FindFirstChildWhichIsA("Tool")
+                if tool and tool.Name == "Protein Egg" then
+                    tool.Enabled = false
                 end
-                task.wait(0.1)
             end
-        end)()
+        end)
+        
+        _G.EggConnection = connection
         
     else
         local mt = getrawmetatable(game)
         setreadonly(mt, false)
         mt.__namecall = nil
         setreadonly(mt, true)
+        
+        if _G.EggConnection then
+            _G.EggConnection:Disconnect()
+            _G.EggConnection = nil
+        end
     end
 end)
 
